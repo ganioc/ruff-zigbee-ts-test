@@ -1,1 +1,0 @@
- find ./src -type f -name '*.js' -exec sed -i '' s/\\\"underscore\\\"/\\\"\\\.\\\/underscore.js\\\"/ {} +
