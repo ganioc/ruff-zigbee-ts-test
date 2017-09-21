@@ -1,0 +1,22 @@
+{
+  "name": "nxp-zigbee-dongle",
+  "version": "0.1.0",
+  "description": "",
+  "author": "yang jun",
+  "main": "src/index.js",
+  "ruff": {
+    "boards": {
+      "sg-mbd-v1": "file:./ruff_modules/sg-mbd-v1/",
+      "*": "*"
+    },
+    "dependencies": {
+      "zigbee-uart": "*",
+      "underscore": "*"
+    },
+    "version": 1
+  },
+  "dependencies": {
+    "@types/node": "^8.0.27",
+    "@types/underscore": "^1.8.3"
+  }
+}
