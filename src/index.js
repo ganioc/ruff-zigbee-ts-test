@@ -94,14 +94,14 @@ $.ready(function (error) {
         manager.updateLightDeviceType(data);
         // place to set the correct state of the device
         manager.updateOnOffState(data);
+        manager.updateControlFromSwitch(data, objConfig);
         // control light according to switch action
-        var dongle = dongleBundle.getDongleBySerial(data.dongleSerial);
-        if (dongle) {
-            manager.updateControlAction(dongle.uart, data);
-        }
-        else {
-            console.log("handleAttributeReport, can not find dongle:" + data.dongleSerial);
-        }
+        // let dongle = dongleBundle.getDongleBySerial(data.dongleSerial);
+        // if (dongle) {
+        //     manager.updateControlAction(dongle.uart, data);
+        // } else {
+        //     console.log("handleAttributeReport, can not find dongle:" + data.dongleSerial);
+        // }
     });
     decode.emitter.on('handleReadAttributeResponse', function (data) {
         manager.updateOnOffState(data);

@@ -18,5 +18,15 @@
         {
             "path": "/dev/ttyUSB1"
         }
+    ],
+    "Switches": [
+        {
+            "IEEEAddress": "",
+            "type": 17 // double switch
+        },
+        {
+            "IEEEAddress": "",
+            "type": 16 // single switch
+        }
     ]
 }

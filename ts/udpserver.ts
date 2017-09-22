@@ -19,11 +19,13 @@ export class UdpServer {
 
     GATEWAY_ID: string;
     PORT: number;
+    ADDR_BROADCAST: string;
     //zigbee: ZigbeeUtils;
     storage: DeviceStorage;
     manager: DeviceManager;
     dongleBundle: DongleBundle;
     server: dgram.Socket;
+
 
     constructor(storage, manager, dongleBundle) {
         // this.zigbee = zigbee;
@@ -86,6 +88,7 @@ export class UdpServer {
             );
         });
     }
+
 
     parse(msg) {
         // ----------- parse messages -------------
@@ -416,6 +419,34 @@ export class UdpServer {
                 content: this.dongleBundle.dongleInfo()
 
             };
+        }
+        else if (msg.cmd == 'toall') {
+            console.log('===toall: ');
+
+            if (msg.action) {
+                console.log("msg.action:" + msg.action);
+            } else {
+                console.log("No msg.action");
+
+                return;
+            }
+
+            if (msg.action === "on") {
+                this.manager.turnOnAll();
+            } else if (msg.action === "off") {
+                this.manager.turnOffAll();
+            } else {
+                return {
+                    cmd: msg.cmd + '_rsp',
+                    content: "Unrecognized action :" + msg.action
+                };
+            }
+
+            return {
+                cmd: msg.cmd + '_rsp',
+                content: "OK"
+            };
+
         }
         else { // unknown command
             return {

@@ -28,9 +28,14 @@ export interface usbJSON {
 // export interface usbListJSON {
 //     USBList: usbJSON[];
 // }
+export interface switchJSON {
+    "IEEEAddress": string,
+    "type": string
+}
 export interface ConfigJSON {
     DeviceList: deviceJSON[];
     usbListJSON: usbJSON[];
+    switchListJSON: switchJSON[];
 }
 export class DongleBundle {
     //uarts: any[];

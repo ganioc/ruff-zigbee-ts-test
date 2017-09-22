@@ -5,6 +5,9 @@ import { Relation } from './relation';
 import util = require('util');
 import { ZigbeeUtils } from './zigbee_utils';
 import { Interpreter, MessageAnnounce, MessageAttributeReport } from './interpreter';
+import { ConfigJSON } from './donglebundle';
+import dgram = require("dgram");
+
 
 //let zigbee = new ZigbeeUtils();
 
@@ -777,5 +780,85 @@ export class DeviceManager {
 
         };
     }
+    broadcast(msg: string) {
+        let client = dgram.createSocket("udp4");
+        let ADDR_BROADCAST = "255.255.252.0";
+        let PORT = 33333;
 
+        client.send(
+            msg,
+            0,
+            msg.length,
+            PORT,
+            ADDR_BROADCAST,
+            function (err, bytes) {
+                if (err)
+                    throw err;
+                console.log("UDP message sent to :" + this.ADDR_BROADCAST + ":" + this.PORT);
+            }
+        );
+    }
+    // Turn on all lamps
+    turnOnAll() {
+        console.log("turnOnAll() triggered");
+
+
+
+    }
+    // Turn off all lamps
+    turnOffAll() {
+        console.log("turnOffAll() triggered");
+
+    }
+    updateControlFromSwitch(data: MessageAttributeReport, config: ConfigJSON): void {
+        let obj: Device;
+        let objSwitch;
+
+        if (!(data.clusterID == '0x0006' && data.attributeID == '0x0000')) {
+            console.log("AttributeID is not 0x0006,  no need to handle.");
+            return;
+        }
+        obj = this.findDeviceShortAddress(data.shortAddress);
+
+        if (!obj) {
+            console.log("Device not found");
+            return;
+        }
+
+        obj.online = true;
+        obj.onlineLastUpdate = new Date().getTime();
+
+        objSwitch = _.find(config.switchListJSON, (m) => {
+            return obj.IEEEAddress === m.IEEEAddress;
+        });
+
+        if (!objSwitch) {
+            console.log("Switch is not in dongle_config.json");
+            return;
+        }
+
+        if (parseInt(objSwitch.type) === Device.DOUBLE_SWITCH) {
+            if (data.endPoint == Device.LEFT_EP_SWITCH &&
+                data.status == Device.SWITCH_KEYDOWN) {
+
+                this.turnOffAll();
+                this.broadcast(JSON.stringify({
+                    cmd: 'toall',
+                    action: 'off'
+                }));
+
+            } else if (data.endPoint == Device.RIGHT_EP_SWITCH &&
+                data.status == Device.SWITCH_KEYDOWN) {
+
+                this.turnOnAll();
+                this.broadcast(JSON.stringify({
+                    cmd: 'toall',
+                    action: 'on'
+                }));
+
+            }
+        } else {
+            console.log("switch type is unrecognized");
+        }
+    }
 }
