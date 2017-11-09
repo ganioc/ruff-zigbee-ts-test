@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ZigbeeUtils = (function () {
+var ZigbeeUtils = /** @class */ (function () {
     function ZigbeeUtils() {
     }
     // mask message and push into buffer

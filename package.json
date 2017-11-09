@@ -1,6 +1,6 @@
 {
   "name": "nxp-zigbee-dongle",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "",
   "author": "yang jun",
   "main": "src/index.js",

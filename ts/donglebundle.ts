@@ -34,8 +34,9 @@ export interface switchJSON {
 }
 export interface ConfigJSON {
     DeviceList: deviceJSON[];
-    usbListJSON: usbJSON[];
-    switchListJSON: switchJSON[];
+    UsbList: usbJSON[];
+    SwitchList: switchJSON[];
+    Servername: string;
 }
 export class DongleBundle {
     //uarts: any[];

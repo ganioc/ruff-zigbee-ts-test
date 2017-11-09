@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Device = (function () {
+var Device = /** @class */ (function () {
     function Device(options) {
         this.shortAddress = options.shortAddress || '0x0000';
         this.IEEEAddress = options.IEEEAddress || '0x0000000000000000';
@@ -43,7 +43,7 @@ var Device = (function () {
     return Device;
 }());
 exports.Device = Device;
-var SingleSwitchDevice = (function (_super) {
+var SingleSwitchDevice = /** @class */ (function (_super) {
     __extends(SingleSwitchDevice, _super);
     function SingleSwitchDevice(options) {
         var _this = _super.call(this, options) || this;
@@ -53,7 +53,7 @@ var SingleSwitchDevice = (function (_super) {
     return SingleSwitchDevice;
 }(Device));
 exports.SingleSwitchDevice = SingleSwitchDevice;
-var DoubleSwitchDevice = (function (_super) {
+var DoubleSwitchDevice = /** @class */ (function (_super) {
     __extends(DoubleSwitchDevice, _super);
     function DoubleSwitchDevice(options) {
         var _this = _super.call(this, options) || this;
@@ -63,7 +63,7 @@ var DoubleSwitchDevice = (function (_super) {
     return DoubleSwitchDevice;
 }(Device));
 exports.DoubleSwitchDevice = DoubleSwitchDevice;
-var SingleSocketDevice = (function (_super) {
+var SingleSocketDevice = /** @class */ (function (_super) {
     __extends(SingleSocketDevice, _super);
     function SingleSocketDevice(options) {
         var _this = _super.call(this, options) || this;
@@ -75,7 +75,7 @@ var SingleSocketDevice = (function (_super) {
     return SingleSocketDevice;
 }(Device));
 exports.SingleSocketDevice = SingleSocketDevice;
-var DoubleSocketDevice = (function (_super) {
+var DoubleSocketDevice = /** @class */ (function (_super) {
     __extends(DoubleSocketDevice, _super);
     function DoubleSocketDevice(options) {
         var _this = _super.call(this, options) || this;

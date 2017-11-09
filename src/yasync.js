@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var YAsync = (function () {
+var YAsync = /** @class */ (function () {
     function YAsync() {
     }
     YAsync.series = function (arr, cb) {
@@ -34,7 +34,7 @@ var YAsync = (function () {
     return YAsync;
 }());
 exports.YAsync = YAsync;
-var YPromise = (function () {
+var YPromise = /** @class */ (function () {
     function YPromise() {
         this._curFunc = null;
         this._err = null;

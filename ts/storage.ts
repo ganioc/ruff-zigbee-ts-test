@@ -40,13 +40,9 @@ export class DeviceStorage {
     }
 
     private createFile(fileName: string, content: string): void {
-        fs.writeFileSync(fileName, content, function (err) {
-            if (err) {
-                throw new Error("Cannot create file:" + fileName);
-            } else {
-                console.log("Create file " + fileName);
-            }
-        });
+        console.log("Create file " + fileName);
+
+        fs.writeFileSync(fileName, content);
     }
 
     checkFileDeviceList(): void {
@@ -140,14 +136,9 @@ export class DeviceStorage {
             return;
         }
 
-        fs.writeFileSync(fileName, JSON.stringify(toSaveObj), function (err) {
-            if (err) {
-                console.log("Cannot write file:" + fileName);
-                throw err;
-            }
+        console.log('---' + listName + ' List saved!');
 
-            console.log('---' + listName + ' List saved!');
-        });
+        fs.writeFileSync(fileName, JSON.stringify(toSaveObj));
     }
 
     clearDeviceList() {

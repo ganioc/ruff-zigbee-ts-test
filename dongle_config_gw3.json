@@ -1,14 +1,14 @@
 {
     "DeviceList": [
         {
-            "id": "01012501",
-            "id_hex": "00041541",
-            "name": "JN5168Dongle"
+            "id": "01011410",
+            "id_hex": "00041308",
+            "name": "JN5168M06Dongle"
         },
         {
-            "id": "01012002",
-            "id_hex": "00041402",
-            "name": "JN5168Module"
+            "id": "01012412",
+            "id_hex": "00041389",
+            "name": "JN5168M06Module"
         }
     ],
     "UsbList": [
@@ -29,5 +29,5 @@
             "type": 16
         }
     ],
-    "Servername": "GW01"
+    "Servername": "GW03"
 }

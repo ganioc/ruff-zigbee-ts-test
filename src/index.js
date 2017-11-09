@@ -10,10 +10,10 @@ var _ = require("underscore");
 var DONGLE_CONFIG = require("../dongle_config.json");
 var objConfig = DONGLE_CONFIG;
 var storage = new storage_1.DeviceStorage();
-var manager = new devicemanager_1.DeviceManager(storage);
 var uart0 = $('#zuart0'); // /dev/ttyUSB0
 var uart1 = $('#zuart1'); // /dev/ttyUSB1
 var dongleBundle = new donglebundle_1.DongleBundle([uart0, uart1]);
+var manager = new devicemanager_1.DeviceManager(storage);
 var udpserver = new udpserver_1.UdpServer(storage, manager, dongleBundle);
 var zigbee = new zigbee_utils_1.ZigbeeUtils(); // zigbee cmds api
 var decode = new interpreter_1.Interpreter();
@@ -121,7 +121,7 @@ $.ready(function (error) {
     });
     dongleBundle.reset();
     udpserver.start({
-        id: "",
+        id: objConfig.Servername,
         port: ""
     });
     setTimeout(function () {

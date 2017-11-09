@@ -3,10 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var dgram = require("dgram");
 var zigbee_utils_1 = require("./zigbee_utils");
 var device_1 = require("./device");
+var os = require("os");
 //let manager = new DeviceManager();
 var zigbee = new zigbee_utils_1.ZigbeeUtils();
-//let storage = new DeviceStorage();
-var UdpServer = (function () {
+var UdpServer = /** @class */ (function () {
     function UdpServer(storage, manager, dongleBundle) {
         // this.zigbee = zigbee;
         this.storage = storage;
@@ -14,10 +14,34 @@ var UdpServer = (function () {
         this.dongleBundle = dongleBundle;
         this.server = dgram.createSocket('udp4');
     }
+    // broadcast(msg:string){
+    //     this.server.send(msg, );
+    // }
+    UdpServer.prototype.isFromSameIP = function (inIP) {
+        var interfaces = os.networkInterfaces();
+        // console.log("compare IP " + this.server.address().address);
+        console.log(interfaces);
+        console.log(interfaces.wlan0);
+        console.log(interfaces.wlan0.length);
+        console.log(interfaces.wlan0[0]);
+        var str = interfaces.wlan0[0];
+        try {
+            console.log("IP address:" + str.ip);
+        }
+        catch (e) {
+            console.log(e);
+        }
+        if (str.ip === inIP) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
     UdpServer.prototype.start = function (options) {
         var _this = this;
         this.PORT = options.port || UdpServer.DEFALUT_PORT;
-        this.GATEWAY_ID = options.id || 'gateway_01';
+        this.GATEWAY_ID = options.id || 'gateway_number';
         this.server.bind(this.PORT);
         this.server.on("listening", function () {
             var address = _this.server.address();
@@ -31,6 +55,10 @@ var UdpServer = (function () {
         this.server.on("message", function (msg, rinfo) {
             console.log("server got: " + msg + " from " + rinfo.address + ":" + rinfo.port);
             var msgObj;
+            // if receive from the same ip, dump it
+            if (_this.isFromSameIP(rinfo.address)) {
+                return;
+            }
             try {
                 msgObj = JSON.parse(msg.toString());
             }
@@ -56,7 +84,8 @@ var UdpServer = (function () {
         if (msg.cmd == 'ping') {
             console.log("Ping received at udp server:" + UdpServer.DEFALUT_PORT);
             return {
-                cmd: msg.cmd + '_rsp'
+                cmd: msg.cmd + '_rsp',
+                content: "servername:" + this.GATEWAY_ID
             };
             //return parse_cmd_ping(msg);
         }

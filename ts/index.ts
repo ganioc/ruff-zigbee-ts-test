@@ -14,13 +14,14 @@ let DONGLE_CONFIG = require("../dongle_config.json");
 let objConfig: ConfigJSON = <ConfigJSON>DONGLE_CONFIG;
 
 let storage = new DeviceStorage();
-let manager = new DeviceManager(storage);
 
 
 let uart0 = $('#zuart0'); // /dev/ttyUSB0
 let uart1 = $('#zuart1'); // /dev/ttyUSB1
 
 let dongleBundle: DongleBundle = new DongleBundle([uart0, uart1]);
+
+let manager = new DeviceManager(storage);
 
 let udpserver = new UdpServer(storage, manager, dongleBundle);
 
@@ -84,6 +85,7 @@ $.ready(function (error) {
     decode.emitter.on('handleNonFactoryNewReset', function () {
 
     });
+
     decode.emitter.on('handleVersionList', function (data: MessageVersionList) {
         console.log("\n<<<< handleVersionList");
         console.log(data);
@@ -160,7 +162,7 @@ $.ready(function (error) {
     dongleBundle.reset();
 
     udpserver.start({
-        id: "",
+        id: objConfig.Servername, // special servername
         port: ""
     });
 

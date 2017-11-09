@@ -14,7 +14,6 @@ export class Dongle {
     static readonly ID_LENGTH = 8;
     emitter: Events.EventEmitter;
 
-
     //deviceList: any[];  //
 
     constructor(public uart) {

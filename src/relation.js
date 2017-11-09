@@ -10,7 +10,7 @@
  *
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-var Relation = (function () {
+var Relation = /** @class */ (function () {
     function Relation(option) {
         this.name = option.name;
         this.emitterIEEEAddress = option.emitterIEEEAddress;

@@ -46,7 +46,7 @@ function getEntries(msg, entryLength) {
     }
     return entries;
 }
-var Interpreter = (function () {
+var Interpreter = /** @class */ (function () {
     function Interpreter() {
         this.emitter = new Events.EventEmitter();
     }

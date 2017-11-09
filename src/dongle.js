@@ -5,7 +5,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 var Events = require("events");
-var Dongle = (function () {
+var Dongle = /** @class */ (function () {
     //deviceList: any[];  //
     function Dongle(uart) {
         var _this = this;

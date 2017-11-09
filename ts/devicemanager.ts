@@ -6,12 +6,17 @@ import util = require('util');
 import { ZigbeeUtils } from './zigbee_utils';
 import { Interpreter, MessageAnnounce, MessageAttributeReport } from './interpreter';
 import { ConfigJSON } from './donglebundle';
-import dgram = require("dgram");
+import * as dgram from "dgram";
 
 
 //let zigbee = new ZigbeeUtils();
+let client = dgram.createSocket("udp4");
 
 let zigbee = new ZigbeeUtils();
+
+client.bind(function () {
+    client.setBroadcast(true);
+});
 
 export interface ControlEntity {
     IEEEAddress: string,
@@ -780,29 +785,30 @@ export class DeviceManager {
 
         };
     }
-    broadcast(msg: string) {
-        let client = dgram.createSocket("udp4");
-        let ADDR_BROADCAST = "255.255.252.0";
+    broadcast(inmsg: string) {
+
+        let ADDR_BROADCAST = "10.0.3.255";
         let PORT = 33333;
+        let msg = new Buffer(inmsg);
+
+        console.log("Broadcast out");
 
         client.send(
             msg,
             0,
             msg.length,
             PORT,
-            ADDR_BROADCAST,
+            "10.0.3.255",
             function (err, bytes) {
                 if (err)
                     throw err;
-                console.log("UDP message sent to :" + this.ADDR_BROADCAST + ":" + this.PORT);
+                console.log("UDP message sent to :" + ADDR_BROADCAST + ":" + PORT);
             }
         );
     }
     // Turn on all lamps
     turnOnAll() {
         console.log("turnOnAll() triggered");
-
-
 
     }
     // Turn off all lamps
@@ -813,6 +819,8 @@ export class DeviceManager {
     updateControlFromSwitch(data: MessageAttributeReport, config: ConfigJSON): void {
         let obj: Device;
         let objSwitch;
+
+        console.log("updateControlFromSwitch");
 
         if (!(data.clusterID == '0x0006' && data.attributeID == '0x0000')) {
             console.log("AttributeID is not 0x0006,  no need to handle.");
@@ -828,7 +836,7 @@ export class DeviceManager {
         obj.online = true;
         obj.onlineLastUpdate = new Date().getTime();
 
-        objSwitch = _.find(config.switchListJSON, (m) => {
+        objSwitch = _.find(config.SwitchList, (m) => {
             return obj.IEEEAddress === m.IEEEAddress;
         });
 

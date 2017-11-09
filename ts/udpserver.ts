@@ -6,12 +6,17 @@ import { DeviceStorage } from './storage';
 import { Device } from './device';
 import { Dongle } from './dongle';
 import { DongleBundle } from './donglebundle';
+import * as os from 'os';
 
 //let manager = new DeviceManager();
 let zigbee = new ZigbeeUtils();
 //let storage = new DeviceStorage();
 
-
+interface StructIP {
+    internal: boolean;
+    ip: string;
+    family: string;
+}
 
 export class UdpServer {
 
@@ -27,6 +32,7 @@ export class UdpServer {
     server: dgram.Socket;
 
 
+
     constructor(storage, manager, dongleBundle) {
         // this.zigbee = zigbee;
         this.storage = storage;
@@ -35,9 +41,37 @@ export class UdpServer {
         this.server = dgram.createSocket('udp4');
     }
 
+    // broadcast(msg:string){
+    //     this.server.send(msg, );
+    // }
+    isFromSameIP(inIP: string) {
+        let interfaces = os.networkInterfaces();
+        // console.log("compare IP " + this.server.address().address);
+        console.log(interfaces);
+        console.log(interfaces.wlan0)
+        console.log(interfaces.wlan0.length);
+        console.log(interfaces.wlan0[0]);
+
+        let str = interfaces.wlan0[0];
+
+
+
+        try {
+            console.log("IP address:" + str.ip);
+        } catch (e) {
+            console.log(e);
+        }
+        if (str.ip === inIP) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     start(options) {
         this.PORT = options.port || UdpServer.DEFALUT_PORT;
-        this.GATEWAY_ID = options.id || 'gateway_01';
+        this.GATEWAY_ID = options.id || 'gateway_number';
 
         this.server.bind(this.PORT);
 
@@ -53,6 +87,11 @@ export class UdpServer {
         this.server.on("message", (msg, rinfo) => {
             console.log("server got: " + msg + " from " + rinfo.address + ":" + rinfo.port);
             var msgObj;
+
+            // if receive from the same ip, dump it
+            if (this.isFromSameIP(rinfo.address)) {
+                return;
+            }
 
             try {
                 msgObj = JSON.parse(msg.toString());
@@ -97,7 +136,8 @@ export class UdpServer {
             console.log("Ping received at udp server:" + UdpServer.DEFALUT_PORT);
 
             return {
-                cmd: msg.cmd + '_rsp'
+                cmd: msg.cmd + '_rsp',
+                content: "servername:" + this.GATEWAY_ID
             };
             //return parse_cmd_ping(msg);
         } else if (msg.cmd == 'startnetwork') {

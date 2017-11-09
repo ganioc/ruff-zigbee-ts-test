@@ -4,7 +4,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs = require("fs");
-var DeviceStorage = (function () {
+var DeviceStorage = /** @class */ (function () {
     function DeviceStorage() {
         this.deviceList = [];
         this.relationList = [];
@@ -28,14 +28,8 @@ var DeviceStorage = (function () {
         return null;
     };
     DeviceStorage.prototype.createFile = function (fileName, content) {
-        fs.writeFileSync(fileName, content, function (err) {
-            if (err) {
-                throw new Error("Cannot create file:" + fileName);
-            }
-            else {
-                console.log("Create file " + fileName);
-            }
-        });
+        console.log("Create file " + fileName);
+        fs.writeFileSync(fileName, content);
     };
     DeviceStorage.prototype.checkFileDeviceList = function () {
         console.log('check device list file');
@@ -116,13 +110,8 @@ var DeviceStorage = (function () {
             console.log('wrong list name for writeList()');
             return;
         }
-        fs.writeFileSync(fileName, JSON.stringify(toSaveObj), function (err) {
-            if (err) {
-                console.log("Cannot write file:" + fileName);
-                throw err;
-            }
-            console.log('---' + listName + ' List saved!');
-        });
+        console.log('---' + listName + ' List saved!');
+        fs.writeFileSync(fileName, JSON.stringify(toSaveObj));
     };
     DeviceStorage.prototype.clearDeviceList = function () {
         this.deviceList = [];

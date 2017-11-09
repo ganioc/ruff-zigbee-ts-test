@@ -6,7 +6,7 @@ var _ = require("underscore");
 var zigbee_utils_1 = require("./zigbee_utils");
 var yasync_1 = require("./yasync");
 var zigbee = new zigbee_utils_1.ZigbeeUtils();
-var DongleBundle = (function () {
+var DongleBundle = /** @class */ (function () {
     function DongleBundle(uarts) {
         var _this = this;
         this.emitter = new Events.EventEmitter();
