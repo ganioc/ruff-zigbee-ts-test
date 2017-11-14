@@ -7,7 +7,8 @@ import { ZigbeeUtils } from './zigbee_utils';
 import { Interpreter, MessageAnnounce, MessageAttributeReport } from './interpreter';
 import { ConfigJSON } from './donglebundle';
 import * as dgram from "dgram";
-
+import { DongleBundle } from './donglebundle';
+import { setTimeout } from 'timers';
 
 //let zigbee = new ZigbeeUtils();
 let client = dgram.createSocket("udp4");
@@ -30,11 +31,13 @@ export class DeviceManager {
     bInProcessing: boolean; // if command processing is not finished
     //zigbee: ZigbeeUtils;
     storage: DeviceStorage;
+    dongleBundle: DongleBundle;
 
-    constructor(storage: DeviceStorage) {
+    constructor(storage: DeviceStorage, dongleBundle: DongleBundle) {
         this.bInProcessing = false;
         //this.zigbee = zigbee;
         this.storage = storage;
+        this.dongleBundle = dongleBundle;
     }
 
     // find device through short address from message
@@ -689,7 +692,7 @@ export class DeviceManager {
         loopDeviceList(uart);
 
     }
-
+    // get all the device-ep combinations we should control
     getDeviceEntity() {
         var devices = [];
         var i = 0;
@@ -701,51 +704,59 @@ export class DeviceManager {
                 devices.push(
                     {
                         IEEEAddress: dev.IEEEAddress,
-                        ep: Device.LEFT_EP_SOCKET
+                        shortAddress: dev.shortAddress,
+                        ep: Device.LEFT_EP_SOCKET,
+                        dongleID: dev.dongleID,
                     });
                 devices.push(
                     {
                         IEEEAddress: dev.IEEEAddress,
-                        ep: Device.RIGHT_EP_SOCKET
+                        shortAddress: dev.shortAddress,
+                        ep: Device.RIGHT_EP_SOCKET,
+                        dongleID: dev.dongleID,
                     });
             } else if (dev.type == Device.SINGLE_SOCKET) {
                 devices.push(
                     {
                         IEEEAddress: dev.IEEEAddress,
-                        ep: Device.EP_SOCKET
+                        shortAddress: dev.shortAddress,
+                        ep: Device.EP_SOCKET,
+                        dongleID: dev.dongleID,
                     });
             }
         });
         return devices;
     }
 
-    checksatusAllLights(uart) {
+    checkstatusAllLights() {
         // loop devices list, send checkstatus command to each light
         var devices = [];
         let indexDevices = 0, i = 0;
         var that = this;
 
-        if (that.bInProcessing == true) {
-            return;
-        }
+        // if (that.bInProcessing == true) {
+        //     return;
+        // }
 
-        that.bInProcessing = true;
+        // that.bInProcessing = true;
 
         devices = this.getDeviceEntity();
 
-        console.log('check devices below:');
+        console.log('check status of devices below:');
         console.log(devices);
 
         function check() {
             if (indexDevices >= devices.length) {
-                that.bInProcessing = false;
+                // that.bInProcessing = false;
                 return;
             }
             var obj = that.findDeviceLongAddress(devices[indexDevices].IEEEAddress);
             console.log('\nCheck devices NO. ' + indexDevices);
             console.log(devices[indexDevices]);
+
             if (obj) {
-                zigbee.checkLightStatus(uart, parseInt(obj.shortAddress), parseInt(devices[indexDevices].ep));
+                let dongle = that.dongleBundle.getDongleById(devices[indexDevices].dongleID);
+                zigbee.checkLightStatus(dongle.uart, parseInt(obj.shortAddress), parseInt(devices[indexDevices].ep));
             } else {
                 console.log('Cannot find obj of:' + devices[indexDevices].IEEEAddress);
             }
@@ -754,7 +765,7 @@ export class DeviceManager {
 
             setTimeout(function () {
                 check();
-            }, 2500);
+            }, 2000);
         }
 
         check();
@@ -806,15 +817,68 @@ export class DeviceManager {
             }
         );
     }
+    // Use to 
+    actionOnAll(action: number) {
+        // Only send out one time;
+        let that = this;
+        const DELAY_TIME = 500;
+
+        let devices = this.getDeviceEntity();
+        let deviceToTrigger = _.filter(
+            devices,
+            function (m) {
+                if (that.checkControlEntity(
+                    m.IEEEAddress,
+                    Device.ep2String(m.ep),
+                    action)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        );
+        console.log("device list to trigger");
+        console.log(deviceToTrigger);
+
+        // trigger all lights
+        let index = 0;
+
+        function trigger() {
+            if (index === deviceToTrigger.length) {
+                return;
+            }
+            let device = deviceToTrigger[index++];
+            let dev = that.findDeviceLongAddress(device.IEEEAddress);
+            let dongle = that.dongleBundle.getDongleById(dev.dongleID);
+            console.log("trigger:" + index);
+            console.log(device);
+            console.log(dev);
+
+            if (action === Device.ON) {
+                zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+            } else if (action === Device.OFF) {
+                zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+            } else {
+                console.log("Unrecognized action + " + action);
+            }
+            setTimeout(
+                function () {
+                    trigger();
+                }, DELAY_TIME
+            );
+        }
+
+        trigger();
+    }
     // Turn on all lamps
     turnOnAll() {
         console.log("turnOnAll() triggered");
-
+        this.actionOnAll(Device.ON);
     }
     // Turn off all lamps
     turnOffAll() {
         console.log("turnOffAll() triggered");
-
+        this.actionOnAll(Device.OFF);
     }
     updateControlFromSwitch(data: MessageAttributeReport, config: ConfigJSON): void {
         let obj: Device;

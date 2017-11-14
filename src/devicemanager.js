@@ -6,6 +6,7 @@ var relation_1 = require("./relation");
 var util = require("util");
 var zigbee_utils_1 = require("./zigbee_utils");
 var dgram = require("dgram");
+var timers_1 = require("timers");
 //let zigbee = new ZigbeeUtils();
 var client = dgram.createSocket("udp4");
 var zigbee = new zigbee_utils_1.ZigbeeUtils();
@@ -13,10 +14,11 @@ client.bind(function () {
     client.setBroadcast(true);
 });
 var DeviceManager = /** @class */ (function () {
-    function DeviceManager(storage) {
+    function DeviceManager(storage, dongleBundle) {
         this.bInProcessing = false;
         //this.zigbee = zigbee;
         this.storage = storage;
+        this.dongleBundle = dongleBundle;
     }
     // find device through short address from message
     DeviceManager.prototype.findDeviceShortAddress = function (shortAddress) {
@@ -579,12 +581,12 @@ var DeviceManager = /** @class */ (function () {
                     controlLight(uart, control, action);
                 }
                 if (controlList.length > 0) {
-                    setTimeout(function () {
+                    timers_1.setTimeout(function () {
                         processControlList(controlList);
                     }, DELAY_TIME);
                 }
                 else {
-                    setTimeout(function () {
+                    timers_1.setTimeout(function () {
                         indexLoop++;
                         devicesToTrigger = that.getDevicesByDemand(IEEEAddress, relEEp, action);
                         console.log('deviceToTrigger');
@@ -592,7 +594,7 @@ var DeviceManager = /** @class */ (function () {
                         console.log('devices length:' + devicesToTrigger.length);
                         if (devicesToTrigger.length > 0 && indexLoop < MAX_LOOP_NUM) {
                             console.log("Go to " + indexLoop + " loop");
-                            setTimeout(function () {
+                            timers_1.setTimeout(function () {
                                 processControlList(devicesToTrigger);
                             }, DELAY_TIME);
                         }
@@ -607,6 +609,7 @@ var DeviceManager = /** @class */ (function () {
         }
         loopDeviceList(uart);
     };
+    // get all the device-ep combinations we should control
     DeviceManager.prototype.getDeviceEntity = function () {
         var devices = [];
         var i = 0;
@@ -616,52 +619,59 @@ var DeviceManager = /** @class */ (function () {
             if (dev.type == device_1.Device.DOUBLE_SOCKET) {
                 devices.push({
                     IEEEAddress: dev.IEEEAddress,
-                    ep: device_1.Device.LEFT_EP_SOCKET
+                    shortAddress: dev.shortAddress,
+                    ep: device_1.Device.LEFT_EP_SOCKET,
+                    dongleID: dev.dongleID,
                 });
                 devices.push({
                     IEEEAddress: dev.IEEEAddress,
-                    ep: device_1.Device.RIGHT_EP_SOCKET
+                    shortAddress: dev.shortAddress,
+                    ep: device_1.Device.RIGHT_EP_SOCKET,
+                    dongleID: dev.dongleID,
                 });
             }
             else if (dev.type == device_1.Device.SINGLE_SOCKET) {
                 devices.push({
                     IEEEAddress: dev.IEEEAddress,
-                    ep: device_1.Device.EP_SOCKET
+                    shortAddress: dev.shortAddress,
+                    ep: device_1.Device.EP_SOCKET,
+                    dongleID: dev.dongleID,
                 });
             }
         });
         return devices;
     };
-    DeviceManager.prototype.checksatusAllLights = function (uart) {
+    DeviceManager.prototype.checkstatusAllLights = function () {
         // loop devices list, send checkstatus command to each light
         var devices = [];
         var indexDevices = 0, i = 0;
         var that = this;
-        if (that.bInProcessing == true) {
-            return;
-        }
-        that.bInProcessing = true;
+        // if (that.bInProcessing == true) {
+        //     return;
+        // }
+        // that.bInProcessing = true;
         devices = this.getDeviceEntity();
-        console.log('check devices below:');
+        console.log('check status of devices below:');
         console.log(devices);
         function check() {
             if (indexDevices >= devices.length) {
-                that.bInProcessing = false;
+                // that.bInProcessing = false;
                 return;
             }
             var obj = that.findDeviceLongAddress(devices[indexDevices].IEEEAddress);
             console.log('\nCheck devices NO. ' + indexDevices);
             console.log(devices[indexDevices]);
             if (obj) {
-                zigbee.checkLightStatus(uart, parseInt(obj.shortAddress), parseInt(devices[indexDevices].ep));
+                var dongle = that.dongleBundle.getDongleById(devices[indexDevices].dongleID);
+                zigbee.checkLightStatus(dongle.uart, parseInt(obj.shortAddress), parseInt(devices[indexDevices].ep));
             }
             else {
                 console.log('Cannot find obj of:' + devices[indexDevices].IEEEAddress);
             }
             indexDevices++;
-            setTimeout(function () {
+            timers_1.setTimeout(function () {
                 check();
-            }, 2500);
+            }, 2000);
         }
         check();
     };
@@ -692,21 +702,64 @@ var DeviceManager = /** @class */ (function () {
         var PORT = 33333;
         var msg = new Buffer(inmsg);
         console.log("Broadcast out");
-        // console.log(client);
-        //client.setBroadcast(true);
         client.send(msg, 0, msg.length, PORT, "10.0.3.255", function (err, bytes) {
             if (err)
                 throw err;
             console.log("UDP message sent to :" + ADDR_BROADCAST + ":" + PORT);
         });
     };
+    // Use to 
+    DeviceManager.prototype.actionOnAll = function (action) {
+        // Only send out one time;
+        var that = this;
+        var DELAY_TIME = 500;
+        var devices = this.getDeviceEntity();
+        var deviceToTrigger = _.filter(devices, function (m) {
+            if (that.checkControlEntity(m.IEEEAddress, device_1.Device.ep2String(m.ep), action)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+        console.log("device list to trigger");
+        console.log(deviceToTrigger);
+        // trigger all lights
+        var index = 0;
+        function trigger() {
+            if (index === deviceToTrigger.length) {
+                return;
+            }
+            var device = deviceToTrigger[index++];
+            var dev = that.findDeviceLongAddress(device.IEEEAddress);
+            var dongle = that.dongleBundle.getDongleById(dev.dongleID);
+            console.log("trigger:" + index);
+            console.log(device);
+            console.log(dev);
+            if (action === device_1.Device.ON) {
+                zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+            }
+            else if (action === device_1.Device.OFF) {
+                zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+            }
+            else {
+                console.log("Unrecognized action + " + action);
+            }
+            timers_1.setTimeout(function () {
+                trigger();
+            }, DELAY_TIME);
+        }
+        trigger();
+    };
     // Turn on all lamps
     DeviceManager.prototype.turnOnAll = function () {
         console.log("turnOnAll() triggered");
+        this.actionOnAll(device_1.Device.ON);
     };
     // Turn off all lamps
     DeviceManager.prototype.turnOffAll = function () {
         console.log("turnOffAll() triggered");
+        this.actionOnAll(device_1.Device.OFF);
     };
     DeviceManager.prototype.updateControlFromSwitch = function (data, config) {
         var obj;

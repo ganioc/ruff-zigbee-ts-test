@@ -20,6 +20,17 @@ var Device = /** @class */ (function () {
         this.deviceID = options.deviceID || Device.EMPTY_NAME;
         this.dongleID = options.dongleID || "00000000";
     }
+    Device.ep2String = function (ep) {
+        if (ep === Device.LEFT_EP_SOCKET) {
+            return 'left';
+        }
+        else if (ep === Device.RIGHT_EP_SOCKET) {
+            return 'right';
+        }
+        else {
+            return '';
+        }
+    };
     // on off state 
     Device.OFF = 0;
     Device.ON = 1;

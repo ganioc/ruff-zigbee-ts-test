@@ -7,13 +7,14 @@ var devicemanager_1 = require("./devicemanager");
 var storage_1 = require("./storage");
 var udpserver_1 = require("./udpserver");
 var _ = require("underscore");
-var DONGLE_CONFIG = require("../dongle_config.json");
+var timers_1 = require("timers");
+var DONGLE_CONFIG = require("../dongle_config_gw3.json");
 var objConfig = DONGLE_CONFIG;
 var storage = new storage_1.DeviceStorage();
 var uart0 = $('#zuart0'); // /dev/ttyUSB0
 var uart1 = $('#zuart1'); // /dev/ttyUSB1
 var dongleBundle = new donglebundle_1.DongleBundle([uart0, uart1]);
-var manager = new devicemanager_1.DeviceManager(storage);
+var manager = new devicemanager_1.DeviceManager(storage, dongleBundle);
 var udpserver = new udpserver_1.UdpServer(storage, manager, dongleBundle);
 var zigbee = new zigbee_utils_1.ZigbeeUtils(); // zigbee cmds api
 var decode = new interpreter_1.Interpreter();
@@ -124,17 +125,25 @@ $.ready(function (error) {
         id: objConfig.Servername,
         port: ""
     });
-    setTimeout(function () {
+    timers_1.setTimeout(function () {
         console.log("Into main()");
         dongleBundle.checkDongles(zigbee);
-        setTimeout(function () {
+        timers_1.setTimeout(function () {
             dongleBundle.checkDongleNames(objConfig);
             dongleBundle.print();
             dongleBundle.startNetwork();
         }, 3000);
+        timers_1.setTimeout(function () {
+            main();
+        }, 10000);
     }, 5000);
 });
 function main() {
+    // send check status command
+    timers_1.setTimeout(function () {
+        console.log("Periodically checkstatus()");
+        manager.checkstatusAllLights();
+    }, 300000);
 }
 $.end(function () {
 });

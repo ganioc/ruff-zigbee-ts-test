@@ -8,8 +8,9 @@ import { DeviceManager } from './devicemanager';
 import { DeviceStorage } from './storage';
 import { UdpServer } from './udpserver';
 import _ = require("underscore");
+import { setTimeout } from 'timers';
 
-let DONGLE_CONFIG = require("../dongle_config.json");
+let DONGLE_CONFIG = require("../dongle_config_gw3.json");
 
 let objConfig: ConfigJSON = <ConfigJSON>DONGLE_CONFIG;
 
@@ -21,7 +22,7 @@ let uart1 = $('#zuart1'); // /dev/ttyUSB1
 
 let dongleBundle: DongleBundle = new DongleBundle([uart0, uart1]);
 
-let manager = new DeviceManager(storage);
+let manager = new DeviceManager(storage, dongleBundle);
 
 let udpserver = new UdpServer(storage, manager, dongleBundle);
 
@@ -178,13 +179,22 @@ $.ready(function (error) {
 
             dongleBundle.startNetwork();
         }, 3000);
+
+        setTimeout(() => {
+            main();
+        }, 10000);
+
     }, 5000);
 
 
 
 });
 function main() {
-
+    // send check status command
+    setTimeout(function () {
+        console.log("Periodically checkstatus()");
+        manager.checkstatusAllLights();
+    }, 300000);
 
 }
 $.end(function () {

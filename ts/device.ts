@@ -46,6 +46,17 @@ export class Device {
     deviceID: string;
     dongleID: string;
 
+    static ep2String(ep: string): string {
+        if (ep === Device.LEFT_EP_SOCKET) {
+            return 'left';
+        }
+        else if (ep === Device.RIGHT_EP_SOCKET) {
+            return 'right';
+        }
+        else {
+            return '';
+        }
+    }
     constructor(options: DeviceOptions) {
         this.shortAddress = options.shortAddress || '0x0000';
         this.IEEEAddress = options.IEEEAddress || '0x0000000000000000';
