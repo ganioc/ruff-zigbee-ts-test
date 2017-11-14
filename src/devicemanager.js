@@ -712,7 +712,7 @@ var DeviceManager = /** @class */ (function () {
     DeviceManager.prototype.actionOnAll = function (action) {
         // Only send out one time;
         var that = this;
-        var DELAY_TIME = 500;
+        var DELAY_TIME = 800;
         var devices = this.getDeviceEntity();
         var deviceToTrigger = _.filter(devices, function (m) {
             if (that.checkControlEntity(m.IEEEAddress, device_1.Device.ep2String(m.ep), action)) {

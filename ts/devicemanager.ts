@@ -821,7 +821,7 @@ export class DeviceManager {
     actionOnAll(action: number) {
         // Only send out one time;
         let that = this;
-        const DELAY_TIME = 500;
+        const DELAY_TIME = 800;
 
         let devices = this.getDeviceEntity();
         let deviceToTrigger = _.filter(
