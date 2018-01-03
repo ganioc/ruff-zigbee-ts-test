@@ -8,6 +8,7 @@ var storage_1 = require("./storage");
 var udpserver_1 = require("./udpserver");
 var _ = require("underscore");
 var timers_1 = require("timers");
+var mqttcomm_1 = require("./mqttcomm");
 var DONGLE_CONFIG = require("../dongle_config_gw3.json");
 var objConfig = DONGLE_CONFIG;
 var storage = new storage_1.DeviceStorage();
@@ -18,6 +19,7 @@ var manager = new devicemanager_1.DeviceManager(storage, dongleBundle);
 var udpserver = new udpserver_1.UdpServer(storage, manager, dongleBundle);
 var zigbee = new zigbee_utils_1.ZigbeeUtils(); // zigbee cmds api
 var decode = new interpreter_1.Interpreter();
+var mqttComm = new mqttcomm_1.MqttComm(objConfig);
 $.ready(function (error) {
     if (error) {
         console.log(error);

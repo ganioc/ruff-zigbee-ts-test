@@ -9,6 +9,7 @@ import { DeviceStorage } from './storage';
 import { UdpServer } from './udpserver';
 import _ = require("underscore");
 import { setTimeout } from 'timers';
+import { MqttComm } from "./mqttcomm";
 
 let DONGLE_CONFIG = require("../dongle_config_gw3.json");
 
@@ -28,6 +29,8 @@ let udpserver = new UdpServer(storage, manager, dongleBundle);
 
 let zigbee = new ZigbeeUtils(); // zigbee cmds api
 let decode = new Interpreter();
+
+let mqttComm = new MqttComm(objConfig);
 
 $.ready(function (error) {
     if (error) {
