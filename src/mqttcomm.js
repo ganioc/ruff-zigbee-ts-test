@@ -44,7 +44,6 @@ var MqttComm = /** @class */ (function () {
         });
         this.client.on("close", function () {
             console.log("MQTT to server closed:" + HOST);
-            _this.bOnline = false;
             _this.counterClose++;
             if (_this.counterClose > 200) {
                 _this.start();
@@ -61,6 +60,7 @@ var MqttComm = /** @class */ (function () {
             _this.client.subscribe(TOPIC_DL);
         });
         this.client.on('message', function (topic, msg) {
+            _this.bOnline = true;
             switch (topic) {
                 case TOPIC_COMMON_DL:
                     console.log(TOPIC_COMMON_DL + ":" + msg.toString());
