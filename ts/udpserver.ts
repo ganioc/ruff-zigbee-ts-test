@@ -54,8 +54,6 @@ export class UdpServer {
 
         let str = interfaces.wlan0[0];
 
-
-
         try {
             console.log("IP address:" + str.ip);
         } catch (e) {
@@ -472,9 +470,9 @@ export class UdpServer {
             }
 
             if (msg.action === "on") {
-                this.manager.turnOnAll();
+                this.manager.turnOnAll(() => { });
             } else if (msg.action === "off") {
-                this.manager.turnOffAll();
+                this.manager.turnOffAll(() => { });
             } else {
                 return {
                     cmd: msg.cmd + '_rsp',

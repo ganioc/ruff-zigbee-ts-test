@@ -19,7 +19,7 @@ var manager = new devicemanager_1.DeviceManager(storage, dongleBundle);
 var udpserver = new udpserver_1.UdpServer(storage, manager, dongleBundle);
 var zigbee = new zigbee_utils_1.ZigbeeUtils(); // zigbee cmds api
 var decode = new interpreter_1.Interpreter();
-var mqttComm = new mqttcomm_1.MqttComm(objConfig);
+var mqttComm = new mqttcomm_1.MqttComm(objConfig, storage, manager);
 $.ready(function (error) {
     if (error) {
         console.log(error);
@@ -146,6 +146,14 @@ function main() {
         console.log("Periodically checkstatus()");
         manager.checkstatusAllLights();
     }, 300000);
+    mqttComm.start();
+    timers_1.setTimeout(function () {
+        mqttComm.report();
+    }, 20000);
+    setInterval(function () {
+        mqttComm.report();
+    }, 300000);
 }
 $.end(function () {
+    mqttComm.close();
 });

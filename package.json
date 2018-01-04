@@ -11,7 +11,8 @@
     },
     "dependencies": {
       "zigbee-uart": "*",
-      "underscore": "*"
+      "underscore": "*",
+      "mqtt": "*"
     },
     "version": 1
   },

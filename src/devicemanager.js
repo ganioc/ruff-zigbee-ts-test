@@ -709,10 +709,10 @@ var DeviceManager = /** @class */ (function () {
         });
     };
     // Use to 
-    DeviceManager.prototype.actionOnAll = function (action) {
+    DeviceManager.prototype.actionOnAll = function (action, cb) {
         // Only send out one time;
         var that = this;
-        var DELAY_TIME = 800;
+        var DELAY_TIME = 1000;
         var devices = this.getDeviceEntity();
         var deviceToTrigger = _.filter(devices, function (m) {
             if (that.checkControlEntity(m.IEEEAddress, device_1.Device.ep2String(m.ep), action)) {
@@ -722,25 +722,34 @@ var DeviceManager = /** @class */ (function () {
                 return false;
             }
         });
-        console.log("device list to trigger");
+        console.log("device list to trigger ------>");
         console.log(deviceToTrigger);
+        console.log("---------device list to trigger---------");
         // trigger all lights
         var index = 0;
         function trigger() {
             if (index === deviceToTrigger.length) {
+                console.log("!!!!Trigger action finished");
+                cb(); // send out the report
                 return;
             }
             var device = deviceToTrigger[index++];
             var dev = that.findDeviceLongAddress(device.IEEEAddress);
             var dongle = that.dongleBundle.getDongleById(dev.dongleID);
-            console.log("trigger:" + index);
+            console.log("Trigger action:" + index);
             console.log(device);
             console.log(dev);
             if (action === device_1.Device.ON) {
                 zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+                timers_1.setTimeout(function () {
+                    zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+                }, 300);
             }
             else if (action === device_1.Device.OFF) {
                 zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+                timers_1.setTimeout(function () {
+                    zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+                }, 300);
             }
             else {
                 console.log("Unrecognized action + " + action);
@@ -752,14 +761,14 @@ var DeviceManager = /** @class */ (function () {
         trigger();
     };
     // Turn on all lamps
-    DeviceManager.prototype.turnOnAll = function () {
+    DeviceManager.prototype.turnOnAll = function (cb) {
         console.log("turnOnAll() triggered");
-        this.actionOnAll(device_1.Device.ON);
+        this.actionOnAll(device_1.Device.ON, cb);
     };
     // Turn off all lamps
-    DeviceManager.prototype.turnOffAll = function () {
+    DeviceManager.prototype.turnOffAll = function (cb) {
         console.log("turnOffAll() triggered");
-        this.actionOnAll(device_1.Device.OFF);
+        this.actionOnAll(device_1.Device.OFF, cb);
     };
     DeviceManager.prototype.updateControlFromSwitch = function (data, config) {
         var obj;
@@ -786,7 +795,8 @@ var DeviceManager = /** @class */ (function () {
         if (parseInt(objSwitch.type) === device_1.Device.DOUBLE_SWITCH) {
             if (data.endPoint == device_1.Device.LEFT_EP_SWITCH &&
                 data.status == device_1.Device.SWITCH_KEYDOWN) {
-                this.turnOffAll();
+                this.turnOffAll(function () {
+                });
                 this.broadcast(JSON.stringify({
                     cmd: 'toall',
                     action: 'off'
@@ -794,7 +804,8 @@ var DeviceManager = /** @class */ (function () {
             }
             else if (data.endPoint == device_1.Device.RIGHT_EP_SWITCH &&
                 data.status == device_1.Device.SWITCH_KEYDOWN) {
-                this.turnOnAll();
+                this.turnOnAll(function () {
+                });
                 this.broadcast(JSON.stringify({
                     cmd: 'toall',
                     action: 'on'

@@ -30,7 +30,7 @@ let udpserver = new UdpServer(storage, manager, dongleBundle);
 let zigbee = new ZigbeeUtils(); // zigbee cmds api
 let decode = new Interpreter();
 
-let mqttComm = new MqttComm(objConfig);
+let mqttComm = new MqttComm(objConfig, storage, manager);
 
 $.ready(function (error) {
     if (error) {
@@ -199,9 +199,19 @@ function main() {
         manager.checkstatusAllLights();
     }, 300000);
 
+    mqttComm.start();
+
+    setTimeout(() => {
+        mqttComm.report();
+    }, 20000);
+
+    setInterval(() => {
+        mqttComm.report();
+    }, 300000);
+
 }
 $.end(function () {
-
+    mqttComm.close();
 });
 
 

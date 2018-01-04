@@ -378,10 +378,10 @@ var UdpServer = /** @class */ (function () {
                 return;
             }
             if (msg.action === "on") {
-                this.manager.turnOnAll();
+                this.manager.turnOnAll(function () { });
             }
             else if (msg.action === "off") {
-                this.manager.turnOffAll();
+                this.manager.turnOffAll(function () { });
             }
             else {
                 return {

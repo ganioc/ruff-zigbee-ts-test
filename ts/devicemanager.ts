@@ -818,10 +818,10 @@ export class DeviceManager {
         );
     }
     // Use to 
-    actionOnAll(action: number) {
+    actionOnAll(action: number, cb: () => void) {
         // Only send out one time;
         let that = this;
-        const DELAY_TIME = 800;
+        const DELAY_TIME = 1000;
 
         let devices = this.getDeviceEntity();
         let deviceToTrigger = _.filter(
@@ -837,27 +837,37 @@ export class DeviceManager {
                 }
             }
         );
-        console.log("device list to trigger");
+        console.log("device list to trigger ------>");
         console.log(deviceToTrigger);
+        console.log("---------device list to trigger---------");
 
         // trigger all lights
         let index = 0;
 
         function trigger() {
             if (index === deviceToTrigger.length) {
+                console.log("!!!!Trigger action finished");
+                cb(); // send out the report
                 return;
             }
             let device = deviceToTrigger[index++];
             let dev = that.findDeviceLongAddress(device.IEEEAddress);
             let dongle = that.dongleBundle.getDongleById(dev.dongleID);
-            console.log("trigger:" + index);
+            console.log("Trigger action:" + index);
             console.log(device);
             console.log(dev);
 
             if (action === Device.ON) {
                 zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+                setTimeout(() => {
+                    zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+                }, 300);
             } else if (action === Device.OFF) {
                 zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+
+                setTimeout(() => {
+                    zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+                }, 300);
             } else {
                 console.log("Unrecognized action + " + action);
             }
@@ -871,14 +881,14 @@ export class DeviceManager {
         trigger();
     }
     // Turn on all lamps
-    turnOnAll() {
+    turnOnAll(cb) {
         console.log("turnOnAll() triggered");
-        this.actionOnAll(Device.ON);
+        this.actionOnAll(Device.ON, cb);
     }
     // Turn off all lamps
-    turnOffAll() {
+    turnOffAll(cb) {
         console.log("turnOffAll() triggered");
-        this.actionOnAll(Device.OFF);
+        this.actionOnAll(Device.OFF, cb);
     }
     updateControlFromSwitch(data: MessageAttributeReport, config: ConfigJSON): void {
         let obj: Device;
@@ -913,7 +923,9 @@ export class DeviceManager {
             if (data.endPoint == Device.LEFT_EP_SWITCH &&
                 data.status == Device.SWITCH_KEYDOWN) {
 
-                this.turnOffAll();
+                this.turnOffAll(() => {
+
+                });
                 this.broadcast(JSON.stringify({
                     cmd: 'toall',
                     action: 'off'
@@ -922,7 +934,9 @@ export class DeviceManager {
             } else if (data.endPoint == Device.RIGHT_EP_SWITCH &&
                 data.status == Device.SWITCH_KEYDOWN) {
 
-                this.turnOnAll();
+                this.turnOnAll(() => {
+
+                });
                 this.broadcast(JSON.stringify({
                     cmd: 'toall',
                     action: 'on'

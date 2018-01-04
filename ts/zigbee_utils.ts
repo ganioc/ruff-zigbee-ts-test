@@ -224,7 +224,7 @@ export class ZigbeeUtils {
         this._writeCmd(uart, 0x92, msg);
     }
     custTurnLightOff(uart, shortAddress: number, endPoint: number) {
-        console.log('turn light off');
+        // console.log('turn light off');
 
         console.log('turn light off, end point sent: ' + endPoint);
         // TODO short addressES
