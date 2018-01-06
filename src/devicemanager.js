@@ -353,6 +353,7 @@ var DeviceManager = /** @class */ (function () {
     };
     //updateOnOffState(obj: DeviceClass.Device, data: Interpreter.MessageReadAttributeResponse);
     DeviceManager.prototype.updateOnOffState = function (data) {
+        console.log("updateOnOffState()");
         if (!(data.clusterID == '0x0006' && data.attributeID == '0x0000')) {
             return;
         }
@@ -743,13 +744,13 @@ var DeviceManager = /** @class */ (function () {
                 zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
                 timers_1.setTimeout(function () {
                     zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
-                }, 300);
+                }, 500);
             }
             else if (action === device_1.Device.OFF) {
                 zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
                 timers_1.setTimeout(function () {
                     zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
-                }, 300);
+                }, 500);
             }
             else {
                 console.log("Unrecognized action + " + action);

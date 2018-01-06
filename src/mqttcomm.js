@@ -45,8 +45,12 @@ var MqttComm = /** @class */ (function () {
         this.client.on("close", function () {
             console.log("MQTT to server closed:" + HOST);
             _this.counterClose++;
-            if (_this.counterClose > 200) {
-                _this.start();
+            if (_this.counterClose > 1000) {
+                setTimeout(function () {
+                    // this.start();
+                    console.log("error counter > 1000");
+                    _this.counterClose = 0;
+                }, 30000);
             }
         });
         this.client.on("error", function (err) {

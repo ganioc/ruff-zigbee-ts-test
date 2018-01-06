@@ -71,9 +71,13 @@ export class MqttComm {
 
             this.counterClose++;
 
-            if (this.counterClose > 200) {
-                this.start();
-
+            if (this.counterClose > 1000) {
+                setTimeout(() => {
+                    // this.start();
+                    console.log("error counter > 1000");
+                    this.counterClose = 0;
+                    
+                }, 30000);
             }
 
         });

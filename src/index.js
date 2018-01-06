@@ -152,7 +152,7 @@ function main() {
     }, 20000);
     setInterval(function () {
         mqttComm.report();
-    }, 300000);
+    }, 30000);
 }
 $.end(function () {
     mqttComm.close();
