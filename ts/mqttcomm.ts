@@ -76,7 +76,7 @@ export class MqttComm {
                     // this.start();
                     console.log("error counter > 1000");
                     this.counterClose = 0;
-                    
+
                 }, 30000);
             }
 

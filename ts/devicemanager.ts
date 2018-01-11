@@ -423,7 +423,7 @@ export class DeviceManager {
         else {
             console.log("Not supported Light Socket device type" + obj.type);
         }
-        
+
     }
     updateControlAction(uart, data: MessageAttributeReport) {
         if (!(data.clusterID == '0x0006' && data.attributeID == '0x0000')) {
@@ -859,15 +859,15 @@ export class DeviceManager {
 
             if (action === Device.ON) {
                 zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
-                setTimeout(() => {
-                    zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
-                }, 500);
+                // setTimeout(() => {
+                //     zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+                // }, 500);
             } else if (action === Device.OFF) {
                 zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
 
-                setTimeout(() => {
-                    zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
-                }, 500);
+                // setTimeout(() => {
+                //     zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+                // }, 500);
             } else {
                 console.log("Unrecognized action + " + action);
             }

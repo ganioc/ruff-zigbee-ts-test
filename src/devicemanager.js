@@ -742,15 +742,15 @@ var DeviceManager = /** @class */ (function () {
             console.log(dev);
             if (action === device_1.Device.ON) {
                 zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
-                timers_1.setTimeout(function () {
-                    zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
-                }, 500);
+                // setTimeout(() => {
+                //     zigbee.custTurnLightOn(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+                // }, 500);
             }
             else if (action === device_1.Device.OFF) {
                 zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
-                timers_1.setTimeout(function () {
-                    zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
-                }, 500);
+                // setTimeout(() => {
+                //     zigbee.custTurnLightOff(dongle.uart, parseInt(device.shortAddress), parseInt(device.ep));
+                // }, 500);
             }
             else {
                 console.log("Unrecognized action + " + action);
